@@ -1,23 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import ReactMapGL, { Marker } from "react-map-gl";
+import { FaMapMarkerAlt } from "react-icons/fa";
 
 function App() {
+  const [lat, setLat] = useState(48.8584);
+  const [lng, setLng] = useState(2.2945);
+  const [viewport, setViewport] = useState({
+    width: "90vw",
+    height: "90vh",
+    latitude: lat,
+    longitude: lng,
+    zoom: 4,
+  });
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        await setLat(position.coords.latitude);
+        await setLng(position.coords.longitude);
+      },
+      (err) => console.log(err)
+    );
+  }, []);
+  console.log(lat);
+  console.log(lng);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ReactMapGL
+        mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
+        {...viewport}
+        onViewportChange={(nextViewport) => setViewport(nextViewport)}
+        mapStyle={process.env.REACT_APP_MAP_STYLE}
+      >
+        <Marker latitude={lat} longitude={lng} offsetLeft={-20} offsetTop={-10}>
+          <FaMapMarkerAlt style={{ fontSize: "2.5rem", color: "#ff0984" }} />
+        </Marker>
+      </ReactMapGL>
     </div>
   );
 }

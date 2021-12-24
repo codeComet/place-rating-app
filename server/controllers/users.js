@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import UserModel from "../models/Users.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -6,7 +5,7 @@ import jwt from "jsonwebtoken";
 //create an user
 
 export const createUser = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { name, email, password, confirmPassword } = req.body;
 
   try {
     const existingUser = await UserModel.findOne({ email });
@@ -20,7 +19,7 @@ export const createUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = await UserModel.create({
-      username,
+      name,
       email,
       password: hashedPassword,
     });
@@ -33,7 +32,7 @@ export const createUser = async (req, res) => {
 
     res.status(200).json({ result, token });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: error });
   }
 };
 
