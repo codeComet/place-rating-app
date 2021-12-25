@@ -6,8 +6,8 @@ function App() {
   const [lat, setLat] = useState(48.8584);
   const [lng, setLng] = useState(2.2945);
   const [viewport, setViewport] = useState({
-    width: "90vw",
-    height: "90vh",
+    width: "100vw",
+    height: "100vh",
     latitude: lat,
     longitude: lng,
     zoom: 4,
@@ -22,8 +22,7 @@ function App() {
       (err) => console.log(err)
     );
   }, []);
-  console.log(lat);
-  console.log(lng);
+
   return (
     <div className="App">
       <ReactMapGL
