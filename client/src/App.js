@@ -29,6 +29,7 @@ const Label = styled.label`
   display: block;
   font-size: 0.9rem;
   margin-bottom: 0.3rem;
+  position: relative;
 `;
 const Button = styled.button`
   width: 100%;
@@ -45,7 +46,14 @@ function App() {
   const [pins, setPins] = useState([]);
   const [placeId, setPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
-  const [userRating, setUserRating] = useState(0); // initial rating value
+  const [formData, setFormData] = useState({
+    username: currentUser,
+    title: "",
+    description: "",
+    rating: 0,
+    lat: 0,
+    long: 0,
+  });
 
   const [viewport, setViewport] = useState({
     width: "95vw",
@@ -96,10 +104,39 @@ function App() {
       latitude: lat,
       longitude: long,
     });
+    setFormData({
+      ...formData,
+      lat: lat,
+      long: long,
+    });
   };
 
   const handleRating = (rate) => {
-    setUserRating(rate / 20);
+    setFormData({ ...formData, rating: rate / 20 });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    console.log(formData);
+
+    try {
+      const res = await axios.post("/pins", formData);
+      setPins([...pins, res.data]);
+      clear();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const clear = () => {
+    setFormData({
+      username: currentUser,
+      title: "",
+      description: "",
+      rating: 0,
+      lat: 0,
+      long: 0,
+    });
   };
 
   return (
@@ -141,6 +178,7 @@ function App() {
                 <Container>
                   <Title>{pin.title}</Title>
                   <Description>{pin.description}</Description>
+
                   <div>
                     {new Array(pin.rating).fill(null).map((item, index) => (
                       <AiFillStar key={index} />
@@ -149,6 +187,7 @@ function App() {
                       <AiOutlineStar key={index} />
                     ))}
                   </div>
+
                   <User>
                     by <b>{pin.username}</b>{" "}
                   </User>
@@ -169,10 +208,17 @@ function App() {
             onClose={() => setNewPlace(null)}
           >
             <Container>
-              <form>
+              <form onSubmit={handleFormSubmit}>
                 <div className="form-group">
                   <Label>Title</Label>
-                  <input placeholder="Name of the place" />
+                  <input
+                    placeholder="Name of the place"
+                    value={formData.title}
+                    onChange={(e) =>
+                      setFormData({ ...formData, title: e.target.value })
+                    }
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <Label>Description</Label>
@@ -180,14 +226,28 @@ function App() {
                     cols="30"
                     rows="3"
                     placeholder="Tell us about the place"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    required
                   ></textarea>
                 </div>
                 <div className="form-group">
                   <Label>Rating</Label>
                   <Rating
                     onClick={handleRating}
-                    ratingValue={userRating}
                     size={30}
+                    ratingValue={formData.rating}
+                    showTooltip={true}
+                    tooltipDefaultText="Hover and double click to rate"
+                    tooltipStyle={{
+                      fontSize: "10px",
+                      position: "absolute",
+                      bottom: "30%",
+                      left: "19%",
+                    }}
+                    required
                   />
                 </div>
                 <Button type="submit">Add my pin</Button>
