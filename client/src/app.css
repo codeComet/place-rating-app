@@ -6,3 +6,16 @@
   font-size: 20px;
   padding-right: 5px;
 }
+
+.form-group {
+  padding: 5px;
+}
+
+input,
+textarea {
+  width: 100%;
+  border-radius: 5px;
+  outline: none;
+  border: 1px solid gray;
+  padding: 5px 10px;
+}
