@@ -7,6 +7,7 @@ import axios from "axios";
 import { format } from "timeago.js";
 import { Rating } from "react-simple-star-rating";
 import "./app.css";
+import MyNav from "./MyNav";
 
 const Title = styled.h3`
   margin-bottom: 0.5rem;
@@ -42,7 +43,7 @@ const Button = styled.button`
 `;
 
 function App() {
-  const currentUser = "smith";
+  const currentUser = null;
   const [pins, setPins] = useState([]);
   const [placeId, setPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
@@ -56,8 +57,8 @@ function App() {
   });
 
   const [viewport, setViewport] = useState({
-    width: "95vw",
-    height: "95vh",
+    width: "100vw",
+    height: "100vh",
     latitude: 46,
     longitude: 17,
     zoom: 4,
@@ -141,6 +142,7 @@ function App() {
 
   return (
     <div className="App">
+      <MyNav currentUser={currentUser} />
       <ReactMapGL
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
         {...viewport}
@@ -154,13 +156,13 @@ function App() {
             <Marker
               latitude={pin.lat}
               longitude={pin.long}
-              offsetLeft={-20}
-              offsetTop={-10}
+              offsetLeft={-viewport.zoom * 3.5}
+              offsetTop={-viewport.zoom * 7}
               onClick={() => handlePinClick(pin._id, pin.lat, pin.long)}
             >
               <FaMapMarkerAlt
                 style={{
-                  fontSize: "2.5rem",
+                  fontSize: viewport.zoom * 7,
                   color: pin.username === currentUser ? "#ff0984" : "#4f56a5",
                   cursor: "pointer",
                 }}
