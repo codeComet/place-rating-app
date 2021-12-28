@@ -43,7 +43,8 @@ const Button = styled.button`
 `;
 
 function App() {
-  const currentUser = null;
+  const storage = window.localStorage;
+  const [currentUser, setCurrentUser] = useState(storage.getItem("user"));
   const [pins, setPins] = useState([]);
   const [placeId, setPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
@@ -94,6 +95,12 @@ function App() {
     );
   }, []);
 
+  useEffect(() => {
+    if (currentUser) {
+      console.log("useere logged");
+    }
+  }, [currentUser]);
+
   const handlePinClick = (id, lat, long) => {
     setPlaceId(id);
     setViewport({ ...viewport, latitude: lat, longitude: long });
@@ -142,7 +149,11 @@ function App() {
 
   return (
     <div className="App">
-      <MyNav currentUser={currentUser} />
+      <MyNav
+        currentUser={currentUser}
+        setCurrentUser={setCurrentUser}
+        storage={storage}
+      />
       <ReactMapGL
         mapboxApiAccessToken={process.env.REACT_APP_MAPBOX}
         {...viewport}
@@ -200,7 +211,7 @@ function App() {
           </div>
         ))}
 
-        {newPlace && (
+        {newPlace && currentUser && (
           <Popup
             latitude={newPlace.latitude}
             longitude={newPlace.longitude}

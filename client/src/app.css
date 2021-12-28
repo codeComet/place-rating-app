@@ -11,6 +11,11 @@
   padding-right: 5px;
 }
 
+.mapboxgl-popup-content {
+  min-width: 200px;
+  max-width: 250px;
+}
+
 .form-group {
   padding: 5px;
 }

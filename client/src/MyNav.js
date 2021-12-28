@@ -1,33 +1,46 @@
+import axios from "axios";
 import React, { useState } from "react";
 import { Navbar, Container, Nav, Button, Modal, Form } from "react-bootstrap";
+import { FaMapMarkerAlt } from "react-icons/fa";
+import "./nav.css";
 
-const MyNav = ({ currentUser }) => {
+const MyNav = ({ currentUser, setCurrentUser, storage }) => {
   const [showRegister, setShowRegister] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
+  const handleLogout = () => {
+    storage.clear();
+    setCurrentUser(null);
+  };
   return (
-    <Navbar
-      collapseOnSelect
-      expand="lg"
-      bg="dark"
-      variant="dark"
-      //   style={{ zIndex: 1000 }}
-    >
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
-        <Navbar.Brand href="#home">Let's Pin</Navbar.Brand>
+        <Navbar.Brand href="#home">
+          Pin it <FaMapMarkerAlt style={{ color: "red", marginTop: "-3px" }} />
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto"></Nav>
           <Nav>
             {currentUser ? (
-              <Button variant="danger">Logout</Button>
+              <>
+                <h3
+                  className="text-warning mx-4"
+                  style={{
+                    fontSize: "1.3rem",
+                    marginBottom: "0",
+                    marginTop: "6px",
+                  }}
+                >
+                  Welcome, {currentUser}
+                </h3>
+                <Button variant="danger" onClick={handleLogout}>
+                  Logout
+                </Button>
+              </>
             ) : (
               <>
-                <Button
-                  variant="primary"
-                  className="mx-2"
-                  onClick={() => setShowLogin(true)}
-                >
+                <Button variant="primary" onClick={() => setShowLogin(true)}>
                   Login
                 </Button>
                 <Button variant="success" onClick={() => setShowRegister(true)}>
@@ -38,7 +51,12 @@ const MyNav = ({ currentUser }) => {
           </Nav>
         </Navbar.Collapse>
         <Register show={showRegister} onHide={() => setShowRegister(false)} />
-        <Login show={showLogin} onHide={() => setShowLogin(false)} />
+        <Login
+          show={showLogin}
+          onHide={() => setShowLogin(false)}
+          setCurrentUser={setCurrentUser}
+          storage={storage}
+        />
       </Container>
     </Navbar>
   );
@@ -58,9 +76,28 @@ function Register(props) {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const clear = () => {
+    setFormData({
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const res = await axios.post("/user/signup", formData);
+      console.log(res);
+      clear();
+      setRegisterError(false);
+      setRegisterSuccess(true);
+    } catch (error) {
+      console.log(error);
+      setRegisterSuccess(false);
+      setRegisterError(true);
+    }
   };
   return (
     <Modal
@@ -82,6 +119,7 @@ function Register(props) {
               type="text"
               placeholder="User name"
               name="name"
+              value={formData.name}
               onChange={handleChange}
             />
           </Form.Group>
@@ -91,6 +129,7 @@ function Register(props) {
               type="email"
               placeholder="Enter email"
               name="email"
+              value={formData.email}
               onChange={handleChange}
             />
             <Form.Text className="text-muted">
@@ -104,6 +143,7 @@ function Register(props) {
               type="password"
               placeholder="Password"
               name="password"
+              value={formData.password}
               onChange={handleChange}
             />
           </Form.Group>
@@ -113,6 +153,7 @@ function Register(props) {
               type="password"
               placeholder="Confirm password"
               name="confirmPassword"
+              value={formData.confirmPassword}
               onChange={handleChange}
             />
           </Form.Group>
@@ -121,6 +162,14 @@ function Register(props) {
             Submit
           </Button>
         </Form>
+        {registerSuccess && (
+          <p className="text-success">
+            Account created successfully. Please login to continue.
+          </p>
+        )}
+        {registerError && (
+          <p className="text-danger">Something went wrong. Please try again.</p>
+        )}
       </Modal.Body>
     </Modal>
   );
@@ -131,17 +180,25 @@ function Login(props) {
     email: "",
     password: "",
   });
-  const [loginSuccess, setLoginSuccess] = useState(false);
   const [loginError, setLoginError] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
+    try {
+      const { data } = await axios.post("/user/signin", formData);
+      props.storage.setItem("user", data.result.name);
+      props.setCurrentUser(data.result.name);
+      props.onHide();
+    } catch (error) {
+      console.log(error);
+      setLoginError(true);
+    }
   };
+
   return (
     <Modal
       {...props}
@@ -178,6 +235,9 @@ function Login(props) {
             Submit
           </Button>
         </Form>
+        {loginError && (
+          <p className="text-danger my-2">Invalid email or password</p>
+        )}
       </Modal.Body>
     </Modal>
   );
