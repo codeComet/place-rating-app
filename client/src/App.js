@@ -69,7 +69,9 @@ function App() {
     let isMounted = true;
     const getPins = async () => {
       try {
-        const { data } = await axios.get("/pins");
+        const { data } = await axios.get(
+          "https://pin-map-app.herokuapp.com/pins"
+        );
         setPins(data);
       } catch (error) {
         console.log(error);
@@ -97,7 +99,7 @@ function App() {
 
   useEffect(() => {
     if (currentUser) {
-      console.log("useere logged");
+      console.log("user logged");
     }
   }, [currentUser]);
 
@@ -128,7 +130,10 @@ function App() {
     console.log(formData);
 
     try {
-      const res = await axios.post("/pins", formData);
+      const res = await axios.post(
+        "https://pin-map-app.herokuapp.com/pins",
+        formData
+      );
       setPins([...pins, res.data]);
       clear();
     } catch (error) {

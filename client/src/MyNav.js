@@ -88,7 +88,10 @@ function Register(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/user/signup", formData);
+      const res = await axios.post(
+        "https://pin-map-app.herokuapp.com/user/signup",
+        formData
+      );
       console.log(res);
       clear();
       setRegisterError(false);
@@ -189,7 +192,10 @@ function Login(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.post("/user/signin", formData);
+      const { data } = await axios.post(
+        "https://pin-map-app.herokuapp.com/user/signin",
+        formData
+      );
       props.storage.setItem("user", data.result.name);
       props.setCurrentUser(data.result.name);
       props.onHide();
